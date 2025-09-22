@@ -91,12 +91,11 @@ export default function Sidepanel() {
                         {
                             chats.map((element:any) => {
                                 return (
-                                    <Link key={element.id} href="/" className="block p-2 rounded-sm text-md hover:bg-gray-200 truncate">
+                                    <Link key={element.id} href={`/c/${element.id}`} className="block p-2 rounded-sm text-md hover:bg-gray-200 truncate">
                                     {element.title}
                                 </Link>)
                             })
                         }
-                      
                      
                     </div>
                 </div>

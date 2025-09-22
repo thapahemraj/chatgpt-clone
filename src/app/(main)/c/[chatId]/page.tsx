@@ -14,6 +14,7 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
 
   const hasFetched = useRef(false); // Strict Mode guard
   const { startPollingChat } = useChats();
+  const [autoScroll, setAutoScroll] = useState(true);
 
   const fetchChat = async () => {
     try {
@@ -37,13 +38,12 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
   const sendPrompt = async (prompt: string) => {
     const tempUser = { id: Date.now(), role: "user", content: prompt };
     setAllMessages(prev => [...prev, tempUser]);
-    scrollToBottom();
     await streamAssistantResponse(prompt);
   };
 
   const streamAssistantResponse = async (prompt: string) => {
     try {
-      const res = await fetch(`/api/chat/${chatId}/ollama`, {
+      const res = await fetch(`/api/chat/${chatId}/message`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userPrompt: prompt }),
@@ -66,7 +66,7 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
         setAllMessages(prev =>
           prev.map(msg => (msg.id === tempId ? { ...msg, content: assistantMessage } : msg))
         );
-        scrollToBottom();
+     
       }
     } catch (err) {
       console.error("Error streaming assistant:", err);
@@ -75,12 +75,25 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
     }
   };
 
-  const scrollToBottom = () => {
-    chatContainerRef.current?.scrollTo({
-      top: chatContainerRef.current.scrollHeight,
-      behavior: "smooth"
-    })
-  }
+  useEffect(() => {
+    if (autoScroll && chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [messages, autoScroll]);
+
+  const handleScroll = () => {
+    if (!chatContainerRef.current) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
+
+    // If user is close to bottom (within 50px), enable auto-scroll
+    if (scrollHeight - scrollTop - clientHeight < 50) {
+      setAutoScroll(true);
+    } else {
+      // User scrolled up -> stop auto-scroll
+      setAutoScroll(false);
+    }
+  };
 
   useEffect(() => {
     if (!hasFetched.current) {
@@ -90,12 +103,12 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
   }, []);
 
   return (
-    <div className="flex-1 flex flex-col overflow-scroll" ref={chatContainerRef}>
+    <div className="flex-1 flex flex-col overflow-scroll" ref={chatContainerRef}        onScroll={handleScroll}>
       <div className="flex-1 flex flex-col gap-2 m-auto w-3xl pb-[10rem]" >
         {messages.map(msg => (
           <div
             key={msg.id}
-            className={`w-3xl py-2 px-3 rounded-xl ${msg.role === "user" ? "max-w-xl self-end bg-neutral-100" : "self-start"
+            className={`w-3xl py-2 px-3 rounded-xl ${msg.role === "user" ? "max-w-xl w-auto self-end bg-neutral-100" : "self-start"
               }`}
           >
             <ReactMarkdown
