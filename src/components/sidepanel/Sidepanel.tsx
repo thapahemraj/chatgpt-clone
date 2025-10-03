@@ -1,7 +1,7 @@
 "use client";
 
 import ChatGPT from "../icons/ChatGPT";
-import { SidebarCloseIcon, SidebarOpenIcon, UserCircle2Icon } from "lucide-react";
+import { SidebarCloseIcon,  SidebarOpenIcon } from "lucide-react";
 import Link from "next/link";
 import NewChat from "../icons/NewChat";
 import Search from "../icons/Search";
@@ -10,9 +10,8 @@ import Sora from "../icons/Sora";
 import GPT from "../icons/GPT";
 import NewProject from "../icons/NewProject";
 import clsx from "clsx";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useChats } from "@/hooks/chat";
-
 
 export default function Sidepanel() {
     const [collapsed, setCollapsed] = useState(false);
