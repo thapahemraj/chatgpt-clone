@@ -88,12 +88,16 @@ export default function Sidepanel() {
                     <p className="px-2 text-gray-500 text-md">Chats</p>
                     <div className="mt-2">
                         {
-                            chats.map((element:any) => {
-                                return (
-                                    <Link key={element.id} href={`/c/${element.id}`} className="block p-2 rounded-sm text-md hover:bg-gray-200 truncate">
-                                    {element.title}
-                                </Link>)
-                            })
+                            chats && Array.isArray(chats) && chats.length > 0 ? (
+                                chats.map((element:any) => {
+                                    return (
+                                        <Link key={element.id} href={`/c/${element.id}`} className="block p-2 rounded-sm text-md hover:bg-gray-200 truncate">
+                                        {element.title}
+                                    </Link>)
+                                })
+                            ) : (
+                                <p className="px-2 text-gray-400 text-sm">No chats yet</p>
+                            )
                         }
                      
                     </div>
